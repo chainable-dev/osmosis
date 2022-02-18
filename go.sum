@@ -795,6 +795,8 @@ github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220124045025-f4329814320d h1:
 github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220124045025-f4329814320d/go.mod h1:ThWFGTvQHB9AVuKLxAIw+RWJy0EB2CF3Xg2+JNd2jzg=
 github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220213051416-1fab40159cee h1:YS+o9ZyNrn+ifcV1sJrMuBAlGf44BOEWzKCgzaRJRA4=
 github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220213051416-1fab40159cee/go.mod h1:aG3MH3p22uOPXtaCkEv6rZc3Schf81ZULKmWcUqFN6Y=
+github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220218152517-83c040e1c614 h1:X3gxk2/hVl//ZXuSRQZp/eOqK4si2359uioV3EMsbdk=
+github.com/osmosis-labs/cosmos-sdk v0.43.0-rc3.0.20220218152517-83c040e1c614/go.mod h1:aG3MH3p22uOPXtaCkEv6rZc3Schf81ZULKmWcUqFN6Y=
 github.com/osmosis-labs/iavl v0.17.3-osmo-v1 h1:orHUut98Miu2+bsFiNZJ29B3ogrbiBbQpti94L2w3Z4=
 github.com/osmosis-labs/iavl v0.17.3-osmo-v1/go.mod h1:lJEOIlsd3sVO0JDyXWIXa9/Ur5FBscP26zJx0KxHjto=
 github.com/osmosis-labs/ibc-go/v2 v2.0.2-osmo h1:XyYyDTjPIu7qX2nhQp9mboj7Pa9FEnjg1RXw73Ctv5U=
