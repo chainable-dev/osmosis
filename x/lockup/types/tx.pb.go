@@ -12,6 +12,7 @@ import (
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	"github.com/osmosis-labs/osmosis/v7/x/lockup/keeper"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -435,16 +436,6 @@ func (c *msgClient) BeginUnlocking(ctx context.Context, in *MsgBeginUnlocking, o
 	return out, nil
 }
 
-// MsgServer is the server API for Msg service.
-type MsgServer interface {
-	// LockTokens lock tokens
-	LockTokens(context.Context, *MsgLockTokens) (*MsgLockTokensResponse, error)
-	// BeginUnlockingAll begin unlocking all tokens
-	BeginUnlockingAll(context.Context, *MsgBeginUnlockingAll) (*MsgBeginUnlockingAllResponse, error)
-	// MsgBeginUnlocking begins unlocking tokens by lock ID
-	BeginUnlocking(context.Context, *MsgBeginUnlocking) (*MsgBeginUnlockingResponse, error)
-}
-
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
@@ -459,7 +450,7 @@ func (*UnimplementedMsgServer) BeginUnlocking(ctx context.Context, req *MsgBegin
 	return nil, status.Errorf(codes.Unimplemented, "method BeginUnlocking not implemented")
 }
 
-func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
+func RegisterMsgServer(s grpc1.Server, srv keeper.LockKeeper) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
@@ -469,14 +460,14 @@ func _Msg_LockTokens_Handler(srv interface{}, ctx context.Context, dec func(inte
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).LockTokens(ctx, in)
+		return srv.(keeper.LockKeeper).LockTokens(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
 		FullMethod: "/osmosis.lockup.Msg/LockTokens",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).LockTokens(ctx, req.(*MsgLockTokens))
+		return srv.(keeper.LockKeeper).LockTokens(ctx, req.(*MsgLockTokens))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -487,14 +478,14 @@ func _Msg_BeginUnlockingAll_Handler(srv interface{}, ctx context.Context, dec fu
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).BeginUnlockingAll(ctx, in)
+		return srv.(keeper.LockKeeper).BeginUnlockingAll(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
 		FullMethod: "/osmosis.lockup.Msg/BeginUnlockingAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).BeginUnlockingAll(ctx, req.(*MsgBeginUnlockingAll))
+		return srv.(keeper.LockKeeper).BeginUnlockingAll(ctx, req.(*MsgBeginUnlockingAll))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -505,21 +496,21 @@ func _Msg_BeginUnlocking_Handler(srv interface{}, ctx context.Context, dec func(
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).BeginUnlocking(ctx, in)
+		return srv.(keeper.LockKeeper).BeginUnlocking(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
 		FullMethod: "/osmosis.lockup.Msg/BeginUnlocking",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).BeginUnlocking(ctx, req.(*MsgBeginUnlocking))
+		return srv.(keeper.LockKeeper).BeginUnlocking(ctx, req.(*MsgBeginUnlocking))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "osmosis.lockup.Msg",
-	HandlerType: (*MsgServer)(nil),
+	HandlerType: (*keeper.LockKeeper)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "LockTokens",

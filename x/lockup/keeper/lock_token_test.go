@@ -10,7 +10,7 @@ import (
 )
 
 // TODO: Make table driven
-func (suite *KeeperTestSuite) TestMsgLockTokens() {
+func (suite *KeeperTestSuite) TestLockToken() {
 	suite.SetupTest()
 
 	// lock coins
@@ -23,8 +23,8 @@ func (suite *KeeperTestSuite) TestMsgLockTokens() {
 	suite.Require().NoError(err)
 
 	// creation of lock via LockTokens
-	msgServer := keeper.NewMsgServerImpl(suite.app.LockupKeeper)
-	_, err = msgServer.LockTokens(sdk.WrapSDKContext(suite.ctx), types.NewMsgLockTokens(addr1, time.Second, coins))
+	lockUpKeeper := keeper.LockKeeperImpl(suite.app.LockupKeeper)
+	_, err = lockUpKeeper.LockTokens(sdk.WrapSDKContext(suite.ctx), types.NewMsgLockTokens(addr1, time.Second, coins))
 
 	// check locks
 	locks, err := suite.app.LockupKeeper.GetPeriodLocks(suite.ctx)
@@ -44,7 +44,7 @@ func (suite *KeeperTestSuite) TestMsgLockTokens() {
 	err = simapp.FundAccount(suite.app.BankKeeper, suite.ctx, addr1, addCoins)
 	suite.Require().NoError(err)
 
-	_, err = msgServer.LockTokens(sdk.WrapSDKContext(suite.ctx), types.NewMsgLockTokens(addr1, locks[0].Duration, addCoins))
+	_, err = lockUpKeeper.LockTokens(sdk.WrapSDKContext(suite.ctx), types.NewMsgLockTokens(addr1, locks[0].Duration, addCoins))
 	suite.Require().NoError(err)
 
 	// check locks after adding tokens to lock
