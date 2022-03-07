@@ -1,7 +1,10 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/osmosis-labs/osmosis/v7/x/gamm/utils"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -58,4 +61,67 @@ func (k *Keeper) SetHooks(lh types.LockupHooks) *Keeper {
 // And we need to replace their pool1 LP tokens with pool2 LP tokens with the same lock duration and end time
 type AdminKeeper struct {
 	Keeper
+}
+
+func (server msgServer) LockTokens(goCtx context.Context, msg *types.MsgLockTokens) (*types.MsgLockTokensResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// we only allow locks with one denom for now
+	if msg.Coins.Len() != 1 {
+		return nil, errors.Wrap(errors.ErrInvalidRequest,
+			fmt.Sprintf("Lockups can only have one denom per lockID, got %v", msg.Coins))
+	}
+
+	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(msg.Coins) == 1 {
+		locks := server.keeper.GetAccountLockedDurationNotUnlockingOnly(ctx, owner, msg.Coins[0].Denom, msg.Duration)
+		// if existing lock with same duration and denom exists, just add there
+		if len(locks) > 0 {
+			lock := locks[0]
+			if lock.Coins.Len() != 1 {
+				return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
+			}
+
+			if lock.Owner != owner.String() {
+				return nil, types.ErrNotLockOwner
+			}
+
+			_, err = server.keeper.AddTokensToLockByID(ctx, lock.ID, msg.Coins)
+			if err != nil {
+				return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
+			}
+
+			ctx.EventManager().EmitEvents(sdk.Events{
+				sdk.NewEvent(
+					types.TypeEvtAddTokensToLock,
+					sdk.NewAttribute(types.AttributePeriodLockID, utils.Uint64ToString(locks[0].ID)),
+					sdk.NewAttribute(types.AttributePeriodLockOwner, msg.Owner),
+					sdk.NewAttribute(types.AttributePeriodLockAmount, msg.Coins.String()),
+				),
+			})
+			return &types.MsgLockTokensResponse{ID: locks[0].ID}, nil
+		}
+	}
+
+	lock, err := server.keeper.LockTokens(ctx, owner, msg.Coins, msg.Duration)
+	if err != nil {
+		return nil, errors.Wrap(errors.ErrInvalidRequest, err.Error())
+	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.TypeEvtLockTokens,
+			sdk.NewAttribute(types.AttributePeriodLockID, utils.Uint64ToString(lock.ID)),
+			sdk.NewAttribute(types.AttributePeriodLockOwner, lock.Owner),
+			sdk.NewAttribute(types.AttributePeriodLockAmount, lock.Coins.String()),
+			sdk.NewAttribute(types.AttributePeriodLockDuration, lock.Duration.String()),
+			sdk.NewAttribute(types.AttributePeriodLockUnlockTime, lock.EndTime.String()),
+		),
+	})
+
+	return &types.MsgLockTokensResponse{ID: lock.ID}, nil
 }
